@@ -1,11 +1,11 @@
 from pathlib import Path
 from os import system
 
-main_dir = Path.cwd()
+main_dir = Path(Path.cwd(), "recetas")
 
 def list_categories():
     i = 0
-    for category in main_dir.glob("*"):
+    for category in main_dir.glob("*/"):
         if category.is_dir():
             i += 1
             print(f" [{i}] - {category.name}")
@@ -19,30 +19,43 @@ def list_recetas(category):
 def choice_category(n):
     all = list(main_dir.glob("*/"))
     categories = [obj for obj in all if obj.is_dir()]
-    return categories[n-1]
+    return categories[int(n)-1]
 
 def choice_receta(n, category):
     recetas = list(Path(category).glob("*"))
-    return recetas[n-1]
+    return recetas[int(n)-1]
     
 
 def read_receta():
     system('cls')
     list_categories()
-    category = choice_category(int(input("Seleccione categoría: ")))
+    n = 'x'
+    while not n.isnumeric() or int(n) not in range(1, (count_categories() + 1)):
+        n = input("Seleccione categoría: ")
+    category = choice_category(n)
+    if len(list(category.glob("**/*.txt"))) == 0:
+        print("No hay recetas en esta categoría")
+        input("Pulse una tecla para continuar...")
+        init()
     list_recetas(category)
-    receta = choice_receta(int(input("Seleccione receta: ")), category)
+    n = 'x'
+    while not n.isnumeric() or int(n) not in range(1, (len(list(category.glob("**/*.txt"))) + 1)):
+        n = input("Seleccione receta: ")
+    receta = choice_receta(n, category)
     file = open(receta)
     print(file.read())
     input("Pulse cualquier tecla para continuar")
 
 def create_categorie():
-    Path(input("Escriba el nombre de la nueva categoría: ")).mkdir()
+    Path("recetas", input("Escriba el nombre de la nueva categoría: ")).mkdir()
 
 def create_receta():
     system('cls')
     list_categories()
-    category = choice_category(int(input("Seleccione categoría: ")))
+    n = '8'
+    while not n.isnumeric() or int(n) not in range(1, (count_categories() + 1)):
+        n = input("Seleccione categoría: ")
+    category = choice_category(n)
     nombre_receta = input("Escriba el nombre de la receta: ") + ".txt"
     file = open(Path(category, nombre_receta ) , "w")
     file.write(input("Escriba la receta: "))
@@ -50,9 +63,17 @@ def create_receta():
 def delete_categorie():
     system('cls')
     list_categories()
-    category = choice_category(int(input("Seleccione categoría: ")))
+    n = '8'
+    while not n.isnumeric() or int(n) not in range(1, (count_categories() + 1)):
+        n = input("Seleccione categoría: ")
+    category = choice_category(n)
     print(category)
-    Path(category).rmdir()   
+    if len(list(category.glob("**/*.txt"))) == 0:
+        Path("recetas", category).rmdir()
+        print("Categoría borrada") 
+    else:
+        print("El directorio no está vacío.")
+        print("No se puede eliminar") 
     input("Pulse cualquier tecla para continuar")
 
 def delete_receta():
@@ -62,11 +83,16 @@ def delete_receta():
         i += 1
         print(f" [{i}] - {receta.stem}")
     recetas = list(main_dir.glob("**/*.txt"))
-    receta = int(input("Seleccione receta a eliminar: "))
-    Path(recetas[receta - 1]).unlink()
+    receta = '0'
+    while not receta.isnumeric() or int(receta) not in range(1, count_recetas() + 1):
+        receta = input("Seleccione receta a eliminar: ")
+    Path(recetas[int(receta) - 1]).unlink()
     
 def count_recetas():
     return len(list(main_dir.glob("**/*.txt")))
+
+def count_categories():
+    return len(list(main_dir.glob("*/")))
 
 def menu():
     print("[1] - leer receta")
@@ -74,7 +100,7 @@ def menu():
     print("[3] - crear categoría")
     print("[4] - eliminar receta")
     print("[5] - eliminar categoría")
-    print("[6] - salir del programa")
+    print("[6] - salir del programa\n")
     
 def choice_option(option):
     match option:
@@ -95,13 +121,18 @@ def choice_option(option):
             input("Pulse cualquier tecla para volver a intentarlo")
     return option
 
-option = "0"
 
-while option != "6":
-    print("Bienvenido al RECETARIO")
-    print(f"Las recetas se encuentran en {main_dir}")
-    print(f"Actualmente hay {count_recetas()} recetas\n")
-    menu()
-    option = choice_option(input("seleccione una opción:\n "))
+def init():
     system('cls')
-    
+    option = "0"
+    while option != "6":
+        print('*' * 45)
+        print("*" * 10 + " Bienvenido al RECETARIO " + "*" * 10)
+        print('*' * 45)
+        print(f"Las recetas se encuentran en {main_dir}")
+        print(f"Actualmente hay {count_recetas()} recetas\n")
+        menu()
+        option = choice_option(input("seleccione una opción:\n "))
+        system('cls')
+
+init()
