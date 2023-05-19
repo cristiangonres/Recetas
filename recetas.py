@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from os import system
 
@@ -47,7 +48,12 @@ def read_receta():
     input("Pulse cualquier tecla para continuar")
 
 def create_categorie():
-    Path("recetas", input("Escriba el nombre de la nueva categoría: ")).mkdir()
+    categoria = input("Escriba el nombre de la nueva categoría: ")
+    if not os.path.exists(Path("recetas", categoria)):
+        Path("recetas", categoria).mkdir()
+    else:
+        print("La categoría ya existe")
+        input("Pulse una tecla para continuar")
 
 def create_receta():
     system('cls')
@@ -57,8 +63,12 @@ def create_receta():
         n = input("Seleccione categoría: ")
     category = choice_category(n)
     nombre_receta = input("Escriba el nombre de la receta: ") + ".txt"
-    file = open(Path(category, nombre_receta ) , "w")
-    file.write(input("Escriba la receta: "))
+    if not os.path.exists(Path(category, nombre_receta )):
+        file = open(Path(category, nombre_receta ) , "w")
+        file.write(input("Escriba la receta: "))
+    else:
+        print("La receta ya existe.")
+        input("Pulse una tecla para volver a intentarlo")
     
 def delete_categorie():
     system('cls')
@@ -95,12 +105,14 @@ def count_categories():
     return len(list(main_dir.glob("*/")))
 
 def menu():
-    print("[1] - leer receta")
-    print("[2] - crear receta")
-    print("[3] - crear categoría")
-    print("[4] - eliminar receta")
-    print("[5] - eliminar categoría")
-    print("[6] - salir del programa\n")
+    print('''
+    [1] - leer receta
+    [2] - crear receta
+    [3] - crear categoría
+    [4] - eliminar receta
+    [5] - eliminar categoría
+    [6] - salir del programa\n
+    ''')
     
 def choice_option(option):
     match option:
@@ -121,15 +133,14 @@ def choice_option(option):
             input("Pulse cualquier tecla para volver a intentarlo")
     return option
 
-
 def init():
     system('cls')
     option = "0"
     while option != "6":
         print('*' * 45)
         print("*" * 10 + " Bienvenido al RECETARIO " + "*" * 10)
-        print('*' * 45)
-        print(f"Las recetas se encuentran en {main_dir}")
+        print('*' * 45 + "\n")
+        print(f"Las recetas se encuentran en {main_dir}\n")
         print(f"Actualmente hay {count_recetas()} recetas\n")
         menu()
         option = choice_option(input("seleccione una opción:\n "))
