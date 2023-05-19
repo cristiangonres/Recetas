@@ -26,7 +26,6 @@ def choice_receta(n, category):
     recetas = list(Path(category).glob("*"))
     return recetas[int(n)-1]
     
-
 def read_receta():
     system('cls')
     list_categories()
